@@ -45,7 +45,7 @@ class TicTacToeTestCase(unittest.TestCase):
         TTTgame.field = [ 1, 2, 3,
                           4, "x", 6,
                          "x", 8, "x" ]
-        self.assertEqual(TTTgame.checkWin(), False)
+        self.assertFalse(TTTgame.checkWin())
 
     def test_check_field (self):
         TTTgame = TicTacToe("user1", "user2")

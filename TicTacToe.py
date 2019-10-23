@@ -42,7 +42,7 @@ class TicTacToe:
 
     def write_field (self, player_answer, current_tocken):
         if player_answer >= 1 and player_answer <= 9:
-            if(str(self.field[player_answer - 1]) not in "X0"):
+            if str(self.field[player_answer - 1]) not in "X0":
                 self.field[player_answer - 1] = current_tocken
                 self.string_to_field()
                 return 0
@@ -65,9 +65,9 @@ class TicTacToe:
             else:
                 self.take_input("0")
             turn += 1
-            if (turn > 4):
-                if (self.checkWin()):
-                    if(turn % 2 == 0):
+            if turn > 4:
+                if self.checkWin():
+                    if turn % 2 == 0:
                         self.print_field()
                         print("{name} победил".format(name=self.toc_player))
                     else:
@@ -83,13 +83,13 @@ class TicTacToe:
 if __name__ == "__main__":
     while True:
         player_one = input("Игрок за крестики, введите свое имя: ")
-        if (not player_one):
+        if not player_one:
             print("У вас нет имени!")
             continue
         break
     while True:
         player_two = input("Игрок за нолики, введите свое имя: ")
-        if (not player_two):
+        if not player_two:
             print("У вас нет имени!")
             continue
         break
