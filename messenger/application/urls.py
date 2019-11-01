@@ -20,7 +20,5 @@ urlpatterns = [
     path('', include('templates.urls')),
     path('admin/', admin.site.urls),
     path('chats/', include('chats.urls')),
-    path('user_profile/', include('user_profile.urls')),
-    path('contacts/', include('contacts.urls')),
-    path('chat_page/', include('chat_page.urls')),
+    path('users/', include('users.urls')),
 ]
