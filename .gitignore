@@ -2,7 +2,9 @@ venv/
 *.рус
 *.swo
 *.swp
+*.env
+.idea
 .gitignore
 messenger/application/local_settings.py
-__pyche__/
+__pycache__/
 messenger/application/messeger_config.py
