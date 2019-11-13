@@ -49,3 +49,5 @@ def search_user (request, user_input=None):
     }
 
     return JsonResponse(users)
+
+    

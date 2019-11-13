@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from chats.models import Chat
 from users.models import User
+from django.views.decorators.csrf import csrf_exempt
 
 @require_http_methods(['GET', 'POST'])
 def chats (request):
@@ -12,13 +13,10 @@ def chats (request):
 def chat (request):
     return JsonResponse ({"status" : "Заглушка для страницы чата"})
 
+@csrf_exempt
 @require_http_methods(['POST'])
 def create_personal_chat (request):
-    if request.user.id is None:
-        return JsonResponse({'Error': 'User id is None'})
-
     chat = Chat.objects.create(topic='Personal chat')
-    chat.user.add(request.POST.user_id)
     chat.save()
     return JsonResponse({'Create_personal_chat': 'Personal chat has been created'})
 
@@ -27,26 +25,22 @@ def get_chat_list(request, pk=None):
     if(pk is None):
         return JsonResponse({'Error': 'ID is None'})
     
-    user_qs = User.objects.all().filter(id=request.POST.user_id)
-    if (len(user_qs) == 0):
-        return JsonResponse({'Error' : 'User does not exist'})
-    user = user_qs.get()
-    chats = Chat.objects.filter(user = request.POST.user_id)
+    if (pk != 1):
+        return JsonResponse({'Error': 'Invalid user'})
+
+    chats = Chat.objects.all()
     if(len(chats) == 0):
         response = {
-            'chats user_id#{}'.format(user.id): {
-                'username': user.name,
-                'usernick': user.nick,
+                'username': 'Nikita',
+                'usernick': 'Nik',
                 'chats': None,
             }
-        }
         return JsonResponse(response)
 
     response = {
-        'chats user_id#{}'.format(user.id): {
-        'username': user.name,
-        'usernick': user.nick,
-        'chats': [
+        'username': 'Nikita',
+        'usernick': 'Nik',
+        'chats':[
             {
                 'chat_id': chat.id,
                 'is_group_chat': chat.is_group_chat,
@@ -54,7 +48,6 @@ def get_chat_list(request, pk=None):
                 'last_message': chat.last_message,
             }for chat in chats
         ]
-        }
     }
 
     return JsonResponse(response)
