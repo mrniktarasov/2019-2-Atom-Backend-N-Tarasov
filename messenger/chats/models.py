@@ -2,9 +2,9 @@ from django.db import models
 
 class Chat (models.Model):
     user = models.ManyToManyField('users.User')
-    is_group_chat = models.BooleanField('Group',null=True, default=False)
-    topic = models.CharField('Topic',max_length=64, default='Chat')
-    last_message = models.TextField('Last message',default='')
+    is_group_chat = models.BooleanField('Группа',null=True, default=False)
+    topic = models.CharField('Заголовок',max_length=64, default='Chat')
+    last_message = models.TextField('Последнее сообщение',default='')
 
     class Meta:
         verbose_name = 'Чат'
@@ -14,8 +14,8 @@ class Chat (models.Model):
 class Message (models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
-    content = models.TextField('Content',default='')
-    date = models.CharField('Date',max_length=16, default='16:00')
+    content = models.TextField('Содержание',default='')
+    date = models.DateTimeField('Дата', auto_now_add=True)
 
 
     class Meta:
