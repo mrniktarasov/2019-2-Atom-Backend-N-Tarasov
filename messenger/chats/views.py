@@ -25,8 +25,8 @@ def get_chat_list(request, pk=None):
     if(pk is None):
         return JsonResponse({'Error': 'ID is None'})
     
-    if (pk != 1):
-        return JsonResponse({'Error': 'Invalid user'})
+    if pk != 1:
+        return JsonResponse({'Error': 'Invalid user, {}'.format(type(pk))})
 
     chats = Chat.objects.all()
     if(len(chats) == 0):
@@ -38,7 +38,7 @@ def get_chat_list(request, pk=None):
         return JsonResponse(response)
 
     response = {
-        'username': 'Nikita',
+        'username': 'Nikita 2',
         'usernick': 'Nik',
         'chats':[
             {

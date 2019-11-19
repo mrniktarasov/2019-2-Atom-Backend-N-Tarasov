@@ -21,30 +21,17 @@ def search_user (request, user_input=None):
     except ValueError:
         user_ids = []
 
-    user_names = User.objects.filter(name=str(user_input)).values()
-    user_nicks = User.objects.filter(nick=str(user_input)).values()
-
-    result = [user for user in user_ids]
-
-    for user in user_names:
-        if user not in result:
-            result.append(user)
-
-    for user in user_nicks:
-        if user not in result:
-            result.append(user)
-
-    if len(result) == 0:
+    if len(user_ids) == 0:
         return JsonResponse({'response': 'no such users {}'.format(user_input)})
 
     users = {
         'Users found with {}'.format(user_input) : [
             {
-                'user id': res.id,
-                'username': res.name,
-                'usernick': res.nik,
-                'avatar': res.avatar,
-            } for res in result
+                'user id': res.get('id'),
+                'username': res.get('username'),
+                'usernick': res.get('nick'),
+                'avatar': res.get('avatar'),
+            } for res in user_ids
         ]
     }
 
