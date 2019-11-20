@@ -14,6 +14,7 @@ class Chat (models.Model):
 class Message (models.Model):
     chat = models.ForeignKey(Chat, on_delete=models.SET_NULL, null=True)
     user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    is_readed = models.BooleanField('Прочитано', null=True, default=False)
     content = models.TextField('Содержание',default='')
     date = models.DateTimeField('Дата', auto_now_add=True)
 

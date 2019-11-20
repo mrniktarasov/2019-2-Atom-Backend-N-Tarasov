@@ -5,7 +5,17 @@ from users.models import User
 
 @require_http_methods(['GET', 'POST'])
 def contacts (request):
-    return JsonResponse ({"status" : "Заглушка для списка контактов"})
+    try:
+        users = User.objects.all()
+    except User.DoesNotExist:
+        return JsonResponse({'Error': 'No users registered'})
+    response = {
+        'users' : [{
+            'username': user.username,
+            'id': user.id,
+        }] for user in users
+    }
+    return JsonResponse (response)
 
 @require_http_methods(['GET', 'POST'])
 def user_profile (request):
