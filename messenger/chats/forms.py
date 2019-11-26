@@ -1,12 +1,10 @@
 from django import forms
 from .models import Message, Chat
 
-class MessageForm (forms.Form):
-    content = forms.CharField(required=False)
-    date = forms.DateField(required=False)
-
-    def save(self):
-        return Message.objects.create(**self.cleaned_data)
+class MessageForm (forms.ModelForm):
+    class Meta:
+        model = Message
+        fields = ('content', 'date')
 
 class CreatePersonalChat(forms.Form):
     is_group_chat = forms.BooleanField(required=False)

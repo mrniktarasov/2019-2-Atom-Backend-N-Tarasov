@@ -8,7 +8,7 @@ def contacts (request):
     try:
         users = User.objects.all()
     except User.DoesNotExist:
-        return JsonResponse({'Error': 'No users registered'})
+        return JsonResponse({'Error': 'No users registered'}, status=404)
     response = {
         'users' : [{
             'username': user.username,
@@ -21,30 +21,29 @@ def contacts (request):
 def user_profile (request):
     return JsonResponse ({"status" : "Заглушка для профиля"})
 
-@require_http_methods(["GET", "POST"])
-def search_user (request, user_input=None):
-    if user_input is None:
-        return JsonResponse({'Error': 'Your input user is None'})
+@require_http_methods(["POST"])
+def search_user (request):
+    username = request.POST['username']
+    if username is None:
+        return JsonResponse({'Error': 'Your input user is None'}, status=400)
     
     try:
-        user_ids = User.objects.filter(id=int(user_input)).values()
-    except ValueError:
-        user_ids = []
+        user_name = User.objects.filter(username__containes = username).first()
+    except:
+        user_name = None
 
-    if len(user_ids) == 0:
-        return JsonResponse({'response': 'no such users {}'.format(user_input)})
+    if not user_name:
+        return JsonResponse({'response': 'no such users {}'.format(username)}, status=404)
 
     users = {
-        'Users found with {}'.format(user_input) : [
+        'Users found with {}'.format(username) : [
             {
                 'user id': res.get('id'),
                 'username': res.get('username'),
                 'usernick': res.get('nick'),
                 'avatar': res.get('avatar'),
-            } for res in user_ids
+            } for res in user_name
         ]
     }
 
     return JsonResponse(users)
-
-    

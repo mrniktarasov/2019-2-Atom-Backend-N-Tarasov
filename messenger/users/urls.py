@@ -5,5 +5,4 @@ urlpatterns = [
     path('', contacts, name='contacts'),
     path('user_profile/', user_profile, name='user_profile'),
     path('search_user/', search_user, name='search_user'),
-    path('search_user/<str:user_input>', search_user, name='search_user'),
 ]

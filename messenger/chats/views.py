@@ -16,7 +16,7 @@ def chat (request, pk=None):
     if(pk is None):
         return JsonResponse({'Error': 'ID is None'})
     try:
-        current_chat = Chat.objects.filter(id=pk)[0]
+        current_chat = Chat.objects.filter(id=pk).first()
     except Chat.DoesNotExist:
         return JsonResponse({'Error': 'Chat#{} does not exist'.format(pk)})
     return JsonResponse({
@@ -29,11 +29,18 @@ def chat (request, pk=None):
 @csrf_exempt
 @require_http_methods(['POST'])
 def create_personal_chat (request):
+    user_id = request.POST['id']
+    try:
+        user = User.objects.filter(id=user_id).first()
+    except:
+        user = None
+    if user is None:
+        return JsonResponse({'Error': 'Invvalid user {}'.format(user_id)})
     form = CreatePersonalChat(request.POST)
     if form.is_valid(): 
         chat = form.save()
         chat.topic = 'Personal chat'
-        chat.user.add(1)
+        chat.user.add(user_id)
         chat.save()
         return JsonResponse({'Create_personal_chat': 'Personal chat has been created'})
     return JsonResponse({'Errors' : form.errors}, status=400)
@@ -43,14 +50,14 @@ def get_chat_list(request, pk=None):
     if(pk is None):
         return JsonResponse({'Error': 'ID is None'})
     try:
-        user = User.objects.filter(id=pk)[0]
-    except User.DoesNotExist:
+        user = User.objects.filter(id=pk).first()
+    except:
         user = None
-    if  user == None:
-        return JsonResponse({'response': 'no such users {}'.format(pk)})
+    if  not user:
+        return JsonResponse({'Error': 'Invalid user {}'.format(pk)}, status=400)
     chats = Chat.objects.filter(user=pk).values()
-    if(len(chats) == 0):
-        return JsonResponse({'Error': 'User has no chats'})
+    if not chat:
+        return JsonResponse({'Error': 'User has no chats'}, status=400)
 
     response = {
         'name': user.name,
@@ -73,10 +80,14 @@ def get_chat_list(request, pk=None):
 def add_message(request, pk=None):
     if pk == None:
         return JsonResponse({'Error': 'invalid chat {}'.format(pk)})
-    current_chat = Chat.objects.filter(id=pk)[0]
-    user_id = request.POST['user_id']
+    current_chat = Chat.objects.filter(id=pk).first()
     if not current_chat:
-        return JsonResponse({'Error':'Chat#{} not found'.format(pk)})
+        return JsonResponse({'Error':'Chat#{} not found'.format(pk)}, status=400)
+    user_id = request.POST['user_id']
+    try:
+        user = User.objects.filter(id=user_id).first()
+    except User.DoesNotExist:
+        return JsonResponse({'Error': 'No such objects'}, status=404)
  
     form = MessageForm(request.POST)
     if form.is_valid():
@@ -90,30 +101,31 @@ def add_message(request, pk=None):
                 'Message' : 'Messahe has been added',
             })
     else:
-            return JsonResponse({'Error': form.errors}, status=-400)
+            return JsonResponse({'Error': form.errors}, status=400)
 
 
 @require_http_methods(['GET'])
 def get_message_list (request, pk=None):
     if(pk is None):
         return JsonResponse({'Error': 'ID is None'})
-    user_id = 1
+    user_id = request.GET['user_id']
     try:
-        user = User.objects.filter(id=int(user_id))[0]
-    except ValueError:
-        user = []
+        user = User.objects.filter(id=user_id).first()
+    except User.DoesNotExist:
+        user = None
     if not user:
-        return JsonResponse({'response': 'no such users {}'.format(user_id)})
+        return JsonResponse({'response': 'no such users {}'.format(user_id)}, status=404)
 
     chat_messages = Message.objects.filter(chat_id=pk).values()
     if not chat_messages:
-        return JsonResponse({'Error':'Messages for Chat#{} not found'.format(pk)})
+        return JsonResponse({'Error':'Messages for Chat#{} not found'.format(pk)}, status=404)
     response = {
         'chat': pk,
         'user': user.username,
         'messages' : [{
             'content': message.get('content'),
             'date': message.get('date'),
+            'is_read': message.get('is_read')
         }for message in chat_messages]
     }  
 
@@ -123,12 +135,27 @@ def get_message_list (request, pk=None):
 @require_http_methods(['POST'])
 def readed_messages(request, pk=None):
     if(pk is None):
-        return JsonResponse({'Error': 'ID is None'})
+        return JsonResponse({'Error': 'ID is None'}, status=400)
     user_id = request.POST['user_id']
-    date = datetime.datetime.now()
-    messages = Message.objects.filter(chat_id=pk).filter(user_id = user_id).filter(date__lte=date)
-    for message in messages:
-        message.is_readed = True
-        message.save()
-    return JsonResponse({'Messages': 'readed'})
+    try:
+        user = User.objects.filter(id=user_id).first()
+    except User.DoesNotExist:
+        user = None
+    if not user:
+        return JsonResponse({'response': 'no such users {}'.format(user_id)}, status=404)
+    try:
+        chat = Chat.objects.filter(id=pk).first()
+    except Chat.DoesNotExist:
+        chat = None
+    if chat is None:
+        return JsonResponse({'Error': 'Chat#{} does not find'.format(pk)}, status=404)
+    last_read_message_id = user.last_read_message 
+    try:
+        message_last = Message.objects.filter(id_gte=last_read_message_id).last()
+    except Message.DoesNotExist:
+        return JsonResponse({'All meesages': 'read'})
+    user.last_read_message = message_last
+    user.save()
+
+    return JsonResponse({'Messages': 'have been read'})
 
