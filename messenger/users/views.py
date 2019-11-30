@@ -3,7 +3,9 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_http_methods
 from users.models import User
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
 
+@login_required
 @require_http_methods(['GET', 'POST'])
 def contacts (request):
     try:
@@ -18,10 +20,19 @@ def contacts (request):
     }
     return JsonResponse (response)
 
+@login_required
 @require_http_methods(['GET', 'POST'])
 def user_profile (request):
-    return JsonResponse ({"status" : "Заглушка для профиля"})
+    user = request.user
+    response = {
+        'username' : user.username,
+        'usernick': user.nick,
+        'avatar': user.avatar,
+        'name': user.name,
+    }
+    return JsonResponse(response)
 
+@login_required
 @csrf_exempt
 @require_http_methods(["GET"])
 def search_user (request):
@@ -30,7 +41,6 @@ def search_user (request):
         return JsonResponse({'Error': 'Your input user is None'}, status=400)
     
     user_name = User.objects.filter(username__contains = username).values()
-    print(user_name)
 
     if not user_name:
         return JsonResponse({'response': 'no such users {}'.format(username)}, status=404)

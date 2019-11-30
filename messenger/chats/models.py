@@ -25,4 +25,9 @@ class Message (models.Model):
         verbose_name = 'Сообщение'
         verbose_name_plural = 'Сообщения'
         ordering = ['-date']
+    
+class ReadedMessage(models.Model):
+    user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
+    chat = models.ForeignKey(Chat, on_delete=models.SET_NULL, null=True)
+    last_read_message = models.IntegerField(default=-1)
 
