@@ -1,10 +1,16 @@
 from django import forms
 from .models import Message, Chat
 
-class MessageForm (forms.ModelForm):
-    class Meta:
-        model = Message
-        fields = ('content', 'date')
+class MessageForm (forms.Form):
+    content = forms.CharField(required=False)
+    date = forms.DateTimeField(required=False)
+    image = forms.ImageField(required=False)
+    image_key = forms.CharField(required=False)
+    image_mime_type = forms.CharField(required=False)
+
+    def save(self):
+        return Message.objects.create(**self.cleaned_data)
+    
 
 class CreatePersonalChat(forms.Form):
     is_group_chat = forms.BooleanField(required=False)

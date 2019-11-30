@@ -12,7 +12,7 @@ https://docs.djangoproject.com/en/2.2/ref/settings/
 
 # -*- coding: utf-8 -*-
 import os
-from application.messeger_config import Database
+from application.messeger_config import Database, Authorization, ForS3
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -41,6 +41,16 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'chats',
     'users',
+    'social_django',
+    'sslserver',
+]
+
+
+AUTHENTICATION_BACKENDS = [
+    'social_core.backends.linkedin.LinkedinOAuth2',
+    'social_core.backends.instagram.InstagramOAuth2',
+    'social_core.backends.facebook.FacebookOAuth2',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 MIDDLEWARE = [
@@ -122,11 +132,31 @@ USE_L10N = True
 USE_TZ = True
 
 
+DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+AWS_S3_ENDPOINT_URL = 'http://hb.bizmrg.com'
+AWS_ACCESS_KEY_ID = ForS3.AWS_ACCESS_KEY_ID
+AWS_SECRET_ACCESS_KEY = ForS3.AWS_SECRET_ACCESS_KEY
+AWS_STORAGE_BUCKET_NAME = 'atom_nikita_tarasov'
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+
 STATIC_URL = '/static/'
 AUTH_USER_MODEL = 'users.User'
+
+LOGIN_URL = 'login'
+LOGIN_REDIRECT_URL = 'home'
+LOGOUT_URL = 'logout'
+LOGOUT_REDIRECT_URL = 'login'
+
+SOCIAL_AUTH_FACEBOOK_KEY = Authorization.SOCIAL_AUTH_FACEBOOK_KEY # App ID
+SOCIAL_AUTH_FACEBOOK_SECRET = Authorization.SOCIAL_AUTH_FACEBOOK_SECRET # App Secret
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, 'static')
+]
 
 try:
     from .local_settings import *

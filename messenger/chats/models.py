@@ -16,6 +16,9 @@ class Message (models.Model):
     user = models.ForeignKey('users.User', on_delete=models.SET_NULL, null=True)
     content = models.TextField('Содержание',default='')
     date = models.DateTimeField('Дата', auto_now_add=True)
+    image = models.ImageField(upload_to='image/', null=True)
+    image_key = models.TextField('Ключ для изображения', default='')
+    image_mime_type = models.TextField('MIME тип изображения', default='')
 
 
     class Meta:
