@@ -1,0 +1,6 @@
+FROM python:3.6 
+
+RUN chat_by_nikita/
+COPY  . /chat_by_nikita
+RUN pip-install -r /chat_by_nikita/requirements.txt
+WORKDIR /chat_by_nikita/
