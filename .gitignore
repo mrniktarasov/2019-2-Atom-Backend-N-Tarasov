@@ -8,5 +8,7 @@ venv/
 messenger/application/local_settings.py
 __pycache__/
 messenger/application/messeger_config.py
+messenger/users/migrations/__pycache__/
 messenger/db.sqlite3
+messenger/dockerfiles
 

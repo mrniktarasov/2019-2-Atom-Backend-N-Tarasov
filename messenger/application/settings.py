@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'users',
     'social_django',
     'sslserver',
+    'corsheaders',
 ]
 
 
@@ -61,6 +62,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
 
 ROOT_URLCONF = 'application.urls'
@@ -87,14 +90,25 @@ WSGI_APPLICATION = 'application.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
+#DATABASES = {
+ #  'default': {
+ #       'ENGINE':  'django.db.backends.postgresql_psycopg2',
+ #       'NAME': Database.NAME,
+ #       'USER': Database.USER,
+ #       'PASSWORD': Database.PASSWORD,
+ #       'HOST': Database.HOST,
+#        'PORT': Database.PORT,
+ #   }
+#}
+
 DATABASES = {
-    'default': {
-        'ENGINE': Database.ENGINE,
-        'NAME': Database.NAME,
-        'USER': Database.USER,
-        'PASSWORD': Database.PASSWORD,
-        'HOST': Database.HOST,
-        'PORT': Database.PORT,
+    "default": {
+        "ENGINE": 'django.db.backends.postgresql_psycopg2',
+        'NAME': os.getenv('POSTGRES_DB'),
+        'USER': os.getenv('POSTGRES_USER'),
+        'PASSWORD': os.getenv('POSTGRES_PASSWORD'),
+        'HOST': os.getenv('POSTGRES_HOST'),
+        'PORT': int(os.getenv('POSTGRES_PORT'))
     }
 }
 
@@ -154,6 +168,12 @@ LOGOUT_REDIRECT_URL = 'login'
 SOCIAL_AUTH_FACEBOOK_KEY = Authorization.SOCIAL_AUTH_FACEBOOK_KEY # App ID
 SOCIAL_AUTH_FACEBOOK_SECRET = Authorization.SOCIAL_AUTH_FACEBOOK_SECRET # App Secret
 
+USE_L10N = True
+
+CORS_ORIGIN_ALLOW_ALL = False
+CORS_ALLOW_CREDENTIALS = True
+CORS_ORIGIN_WHITELIST = ('http://127.0.0.1:3000', 'https://127.0.0.1:8000')
+
 STATICFILES_DIRS = [
     os.path.join(BASE_DIR, 'static')
 ]
@@ -162,3 +182,5 @@ try:
     from .local_settings import *
 except ImportError:
     pass
+
+

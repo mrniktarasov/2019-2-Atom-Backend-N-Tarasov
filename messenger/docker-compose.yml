@@ -1,0 +1,19 @@
+version: '2.1'
+
+services:
+  postgresql:
+    image: postgres:9.5
+    env_file: .env
+    volumes:
+      - ./dockerfiles/pgdata:/var/lib/postgresql/data/pgdata
+
+  backend:
+    build: .
+    env_file: .env
+    command: bash -c "python manage.py makemigrations && python manage.py migrate && python manage.py runsslserver 0.0.0.0:8000"
+    links:
+      - postgresql
+    ports:
+      - "8000:8000"
+    expose:
+      - 8000

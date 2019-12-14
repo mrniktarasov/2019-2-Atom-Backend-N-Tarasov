@@ -8,17 +8,20 @@ from .forms import MessageForm, CreatePersonalChat
 from django.core.files.images import ImageFile
 import magic
 from django.contrib.auth.decorators import login_required
+import json
+from django.core.serializers.json import DjangoJSONEncoder
 
 @login_required
-@require_http_methods(['GET', 'POST'])
+@require_http_methods(['GET'])
 def chat (request, chat_id=None):
     if chat_id is None:
         return JsonResponse({'Error': 'ID is None'})
     current_chat = Chat.objects.filter(id=chat_id).first()
     return JsonResponse({
-        'is group chat': current_chat.is_group_chat,
+        'is_group_chat': current_chat.is_group_chat,
         'topic': current_chat.topic,
-        'last message': current_chat.last_message,
+        'last_message': current_chat.last_message,
+        'last_message_date': current_chat.last_message_date,
     })
     
 @login_required
@@ -41,7 +44,7 @@ def create_personal_chat (request):
     return JsonResponse({'Errors' : form.errors}, status=400)
 
 @login_required
-@require_http_methods(['GET','POST'])
+@require_http_methods(['GET'])
 def get_chat_list(request):
     user = request.user 
     chats = Chat.objects.filter(user=user.id).values()
@@ -59,6 +62,7 @@ def get_chat_list(request):
                 'is_group_chat': chat.get('is_group_chat'),
                 'topic': chat.get('topic'),
                 'last_message': chat.get('last_message'),
+                'last_message_date': chat.get('last_message_date'),
             }for chat in chats
         ]
     }
@@ -85,6 +89,7 @@ def add_message(request, chat_id=None):
             message.chat_id = current_chat.id
             message.save()
             current_chat.last_message = message.content
+            current_chat.last_message_date = str(message.date)
             current_chat.save() 
             return JsonResponse({
                 'Message' : 'Messahe has been added',
@@ -103,15 +108,13 @@ def get_message_list (request, chat_id=None):
     if not chat_messages:
         return JsonResponse({'Error':'Messages for Chat#{} not found'.format(chat_id)}, status=404)
     response = {
-        'chat': chat_id,
-        'user': user.username,
         'messages' : [{
             'content': message.get('content'),
             'date': message.get('date'),
-            'id': message.get('id')
+            'id': message.get('id'),
+            'image': message.get('image'),
         }for message in chat_messages]
     }  
-
     return JsonResponse(response)
 
 @login_required
@@ -128,6 +131,6 @@ def read_messages(request, chat_id=None):
     message_last = Message.objects.filter(user_id=user.id).filter(chat_id=chat_id).filter(id__gte=last_read_message.last_read_message).last()
     if message_last is None:
         return JsonResponse({'All meesages': 'read'})
-    last_read_message.last_read_message = message_last.id + 1
+    last_read_message.last_read_message = message_last.id
     last_read_message.save()
     return JsonResponse({'Response': 'Messages read {}'.format(last_read_message.last_read_message)})
