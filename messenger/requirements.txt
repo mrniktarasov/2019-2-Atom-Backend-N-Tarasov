@@ -54,7 +54,7 @@ social-auth-core==3.2.0
 sqlparse==0.3.0
 traitlets==4.3.3
 typed-ast==1.4.0
-urllib3==1.25.7
+urllib3==1.26.5
 wcwidth==0.1.7
 wrapt==1.11.2
 zipp==0.6.0
